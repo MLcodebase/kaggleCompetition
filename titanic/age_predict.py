@@ -1,7 +1,7 @@
 import pandas as pd
 root_path = 'data'
 train_test = pd.read_csv('%s/%s' % (root_path, 'pre_proc.csv'))
-missing_age = train_test.drop(['Survived','Cabin','age_nan'],axis=1)
+missing_age = train_test.drop(['Survived','Cabin','Cabin_nan','age_nan'],axis=1)
 # process non numeric feature
 #missing_age = pd.get_dummies(missing_age,columns=['Sex','Embarked','fineTitle','Name2_new','Ticket_Letter'])
 #missing_age = missing_age.drop(['corseTitle'],axis=1)
