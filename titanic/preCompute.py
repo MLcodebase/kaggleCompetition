@@ -39,7 +39,7 @@ train_test['Ticket_Letter'] = train_test['Ticket_Letter'].str.replace('\.','').s
 train_test.drop('Ticket',inplace=True,axis=1)
 # process cabin
 train_test['Cabin_nan'] = train_test['Cabin'].apply(lambda x:str(x)[0] if pd.notnull(x) else x)
-train_test = pd.get_dummies(train_test,columns=['Cabin_nan'])
+#train_test = pd.get_dummies(train_test,columns=['Cabin_nan'])
 train_test.loc[train_test["Cabin"].isnull() ,"Cabin_nan"] = 1
 train_test.loc[train_test["Cabin"].notnull() ,"Cabin_nan"] = 0
 # create new feature from age info
