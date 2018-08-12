@@ -33,10 +33,20 @@ del train_test['Name']
 train_test['Ticket_Letter'] = train_test['Ticket'].str.split().str[0]
 train_test['Ticket_Letter'] = train_test['Ticket_Letter'].apply(lambda x:np.nan if x.isalnum() else x)
 '''
-train_test['Ticket_Letter'] = train_test['Ticket'].str.split().str[0]
-train_test['Ticket_Letter'] = train_test['Ticket_Letter'].apply(lambda x:np.nan if x.isalnum() else x)
+train_test['Ticket_list'] = train_test['Ticket'].str.split()
+train_test['Ticket_Letter'] = train_test['Ticket_list'].apply(lambda x:np.nan if x[0].isdigit() else x[0])
 train_test['Ticket_Letter'] = train_test['Ticket_Letter'].str.replace('\.','').str.replace('/','').str.replace('SCParis','SCPARIS')
-train_test.drop('Ticket',inplace=True,axis=1)
+train_test['Ticket_Num'] = train_test['Ticket_list'].apply(lambda x: x[0] if (len(x)==1) else (x[1] if len(x)==2 else x[2]))
+train_test['Ticket_Num'] = train_test['Ticket_Num'].apply(lambda x: np.nan if x=='LINE' else x)
+
+Ticket_Num_sum = train_test['Ticket_Num'].value_counts().reset_index()
+Ticket_Num_sum.columns=['Ticket_Num','Ticket_Num_sum']
+train_test = pd.merge(train_test,Ticket_Num_sum,how='left',on='Ticket_Num')
+train_test.loc[train_test['Ticket_Num_sum'] == 1 , 'Ticket_Num'] = np.nan
+train_test.loc[train_test['Ticket_Num_sum'] > 1 , 'Ticket_Num'] = train_test['Ticket_Num']
+train_test["Ticket_Num_sum"] = train_test["Ticket_Num_sum"].fillna(0.0)
+
+train_test.drop(['Ticket','Ticket_list'],inplace=True,axis=1)
 # process cabin
 train_test['Cabin_nan'] = train_test['Cabin'].apply(lambda x:str(x)[0] if pd.notnull(x) else x)
 #train_test = pd.get_dummies(train_test,columns=['Cabin_nan'])
