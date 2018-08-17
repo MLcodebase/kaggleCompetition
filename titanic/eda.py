@@ -46,9 +46,10 @@ train_data['Ticket_Num']
 train_data[['Ticket_Num_sum','Survived']].groupby(['Ticket_Num_sum']).mean().plot.bar()
 train_data[['Ticket_Num_sum','Survived']].groupby(['Ticket_Num_sum']).count().plot.bar()
 train_data[['Ticket_Num_sum']].value_counts()
-train_test[train_test['Ticket_Num_sum']==11][['Ticket_Num_sum','Survived','Ticket_Num']]
+train_test[train_test['Ticket_Num_sum']==11][['Ticket_Num_sum','Survived','Ticket_Num','Name2_new']]
 # ticket num sum one hot eliminate sum no less than 24 and add sum==11
-
 
 train_data[['Name2_sum','Survived']].groupby(['Name2_sum']).mean().plot.bar()
 train_data[['Name2_sum','Survived']].groupby(['Name2_sum']).count().plot.bar()
+
+train_test[train_test['Name2_sum']==4][['Ticket_Num_sum','Survived','Ticket_Num','Name2_new','Sex','Age']]
