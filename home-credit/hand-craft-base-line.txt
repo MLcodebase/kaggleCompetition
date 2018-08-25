@@ -1,0 +1,68 @@
+client_id: SK_ID_CURR
+
+client credit application history from home-credit:
+df:			'previous_applicaton'
+groupby:	'SK_ID_CURR'
+
+drop_columns:
+	['FLAG_LAST_APPL_PER_CONTRACT','NFLAG_LAST_APPL_IN_DAY','DAYS_DECISION','NAME_CLIENT_TYPE','DAYS_FIRST_DRAWING','DAYS_TERMINATION']
+new_columns:
+	difference='AMT_APPLICATION'-'AMT_CREDIT'
+	term='AMT_CREDIT' / 'AMT_ANNUITY'
+	down-pay_income_rate = 'AMT_DOWN_PAYMENT' / 'client-income'
+	good-income_rate = 'AMT_GOODS_PRICE' / 'client-income'
+	loan_good_rate = 'AMT_CREDIT' / 'AMT_GOODS_PRICE'
+###################################
+df:		'installments_payments'
+groupby:	'SK_ID_CURR'
+
+drop_columns:
+	['DAYS_INSTALMENT','DAYS_ENTRY_PAYMENT']
+new_columns:
+	have_change_install_version
+	have_default = 'DAYS_ENTRY_PAYMENT' - 'DAYS_INSTALMENT' if('DAYS_ENTRY_PAYMENT' - 'DAYS_INSTALMENT') < 0 else 0
+	payment_rate = 'AMT_PAYMENT' / 'AMT_INSTALMENT'
+
+###################################
+df:		'credit_card_balance.csv'
+groupby:	'SK_ID_CURR'
+
+drop_columns:
+	['MONTHS_BALANCE']
+new_columns:
+	'AMT_DRAWINGS_CURRENT'/'AMT_PAYMENT_CURRENT'
+	'AMT_INST_MIN_REGULARITY'/ 'AMT_PAYMENT_TOTAL_CURRENT'
+	'AMT_INST_MIN_REGULARITY'/ 'AMT_PAYMENT_CURRENT'
+
+###################################
+df:		'POS_CASH_balance.csv'
+groupby:	'SK_ID_CURR'
+
+drop_columns:
+	['MONTHS_BALANCE','CNT_INSTALMENT','CNT_INSTALMENT_FUTURE','NAME_CONTRACT_STATUS']
+new_columns:
+
+###################################
+df:		'bureau'
+groupby:	'SK_ID_CURR'
+drop_columns:
+	['DAYS_CREDIT','DAYS_CREDIT_ENDDATE','DAYS_ENDDATE_FACT']
+new_columns:
+	
+###################################
+df:		'bureau'
+groupby:	'SK_ID_CURR'
+drop_columns:
+	['DAYS_CREDIT','DAYS_CREDIT_ENDDATE','DAYS_ENDDATE_FACT']
+new_columns:
+	load_rate = 'AMT_ANNUITY' / client-income
+
+###################################
+df:		'bureau_balance'
+groupby:	'SK_BUREAU_ID'
+drop_columns:
+	['MONTHS_BALANCE']	
+###################################
+df:		'app_train'
+new_column:
+	'previous_loan_count'

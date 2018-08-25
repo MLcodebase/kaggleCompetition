@@ -122,9 +122,9 @@ previous_counts = agg_categorical(previous, 'SK_ID_CURR', 'previous')
 print('Previous counts shape: ', previous_counts.shape)
 
 
-train = pd.read_csv('../input/application_train.csv')
+train = pd.read_csv('data/application_train.csv')
 train = convert_types(train)
-test = pd.read_csv('../input/application_test.csv')
+test = pd.read_csv('data/application_test.csv')
 test = convert_types(test)
 
 # Merge in the previous information
@@ -163,5 +163,3 @@ del installments, installments_by_client
 gc.collect()
 
 submission, fi, metrics = model(train, test)
-
-
