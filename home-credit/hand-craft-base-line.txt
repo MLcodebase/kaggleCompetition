@@ -20,7 +20,7 @@ drop_columns:
 	['DAYS_INSTALMENT','DAYS_ENTRY_PAYMENT']
 new_columns:
 	have_change_install_version
-	have_default = 'DAYS_ENTRY_PAYMENT' - 'DAYS_INSTALMENT' if('DAYS_ENTRY_PAYMENT' - 'DAYS_INSTALMENT') < 0 else 0
+	have_default = 'DAYS_ENTRY_PAYMENT' - 'DAYS_INSTALMENT' if('DAYS_ENTRY_PAYMENT' - 'DAYS_INSTALMENT') > 0 else 0
 	payment_rate = 'AMT_PAYMENT' / 'AMT_INSTALMENT'
 
 ###################################
@@ -55,7 +55,7 @@ groupby:	'SK_ID_CURR'
 drop_columns:
 	['DAYS_CREDIT','DAYS_CREDIT_ENDDATE','DAYS_ENDDATE_FACT']
 new_columns:
-	load_rate = 'AMT_ANNUITY' / client-income
+	loan_rate = 'AMT_ANNUITY' / client-income
 
 ###################################
 df:		'bureau_balance'
@@ -65,4 +65,4 @@ drop_columns:
 ###################################
 df:		'app_train'
 new_column:
-	'previous_loan_count'
+	'burea_loanO_count','previous_loan_count'
