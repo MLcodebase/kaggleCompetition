@@ -66,9 +66,10 @@ bureau_balance = convert_types(bureau_balance, print_info=True)
 drop_columns = ['MONTHS_BALANCE']
 bureau_balance = bureau_balance.drop(columns=drop_columns,axis=1)
 bureau_balance_counts = agg_categorical(bureau_balance, 'SK_ID_BUREAU', 'bureau_balance')
-bureau_balance_agg = agg_numeric(bureau_balance, 'SK_ID_BUREAU', 'bureau_balance')
+#bureau_balance_agg = agg_numeric(bureau_balance, 'SK_ID_BUREAU', 'bureau_balance')
 
-bureau_by_loan = bureau_balance_agg.merge(bureau_balance_counts, right_index = True, left_on = 'SK_ID_BUREAU', how = 'outer')
+#bureau_by_loan = bureau_balance_agg.merge(bureau_balance_counts, right_index = True, left_on = 'SK_ID_BUREAU', how = 'outer')
+bureau_by_loan = bureau_balance_counts
 bureau_by_loan = bureau[['SK_ID_BUREAU', 'SK_ID_CURR']].merge(bureau_by_loan, on = 'SK_ID_BUREAU', how = 'left')
 bureau_balance_by_client = agg_numeric(bureau_by_loan.drop(columns = ['SK_ID_BUREAU']), 'SK_ID_CURR', 'client')
 
@@ -216,9 +217,9 @@ test.to_csv('data/test-hand-feature.csv',index=False)
 
 submission, fi, metrics = model(train, test)
 
-submission.to_csv('feature_hand_lgbm.csv',index=False)
-fi.to_csv('feature_hand_importance.csv')
-metrics.to_csv('feature_hand_metric.csv')
+submission.to_csv('data/feature_hand_lgbm.csv',index=False)
+fi.to_csv('data/feature_hand_importance.csv')
+metrics.to_csv('data/feature_hand_metric.csv')
 
 print 'feature importance:'
 print fi
