@@ -13,7 +13,7 @@ fi = pd.read_csv('data/feature_hand_importance.csv')
 
 columns_drop = list(fi.sort_values('importance')[:200]['feature'])
 
-columns_drop.append(DAYS_BIRTH)
+columns_drop.append('DAYS_BIRTH')
 
 train = pd.read_csv('data/train-hand-feature.csv')
 test = pd.read_csv('data/test-hand-feature.csv')
