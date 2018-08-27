@@ -166,8 +166,6 @@ print('Testing Shape  after merge credit_card_balance: ', test.shape)
 ############## installments_payments
 installments = pd.read_csv('data/installments_payments.csv')
 installments = convert_types(installments, print_info = True)
-drop_columns = ['DAYS_INSTALMENT','DAYS_ENTRY_PAYMENT']
-installments = installments.drop(columns=drop_columns,axis=1)
 installments['payment_rate'] = installments['AMT_PAYMENT'] / installments['AMT_INSTALMENT']
 install_ver_chg = installments[['SK_ID_CURR','SK_ID_PREV','NUM_INSTALMENT_VERSION']]
 install_ver_chg = install_ver_chg.groupby(['SK_ID_CURR','SK_ID_PREV']).nunique()
@@ -188,6 +186,9 @@ def f(x):
 	  return 0
 installments['has_default_day'] = installments['pay_day_dif'].apply(f)
 installments['payment_rate'] = installments['AMT_PAYMENT'] / installments['AMT_INSTALMENT']
+
+drop_columns = ['DAYS_INSTALMENT','DAYS_ENTRY_PAYMENT']
+installments = installments.drop(columns=drop_columns,axis=1)
 
 installments_by_client = aggregate_client(installments, group_vars = ['SK_ID_PREV', 'SK_ID_CURR'], df_names = ['installments', 'client'])
 print('installments by client shape: ', installments_by_client.shape)
