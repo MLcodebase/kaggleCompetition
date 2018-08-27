@@ -79,7 +79,7 @@ train = train.merge(bureau_balance_by_client, on = 'SK_ID_CURR', how = 'left')
 test = test.merge(bureau_balance_by_client, on = 'SK_ID_CURR', how = 'left')
 
 gc.enable()
-del bureau,bureau_balance,bureau_balance_counts,bureau_balance_agg,bureau_by_loan, bureau_balance_by_client
+del bureau,bureau_balance,bureau_balance_counts,bureau_by_loan, bureau_balance_by_client
 gc.collect()
 
 print('Training Shape after merge bureau_balance: ', train.shape)
