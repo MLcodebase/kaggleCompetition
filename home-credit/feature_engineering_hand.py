@@ -211,4 +211,16 @@ train['TARGET'] = train_labels
 print('Training Data Shape after align: ', train.shape)
 print('Testing Data Shape  after align: ', test.shape)
 
+train.to_csv('data/train-hand-feature.csv',index=False)
+test.to_csv('data/test-hand-feature.csv',index=False)
+
 submission, fi, metrics = model(train, test)
+
+submission.to_csv('feature_hand_lgbm.csv',index=False)
+fi.to_csv('feature_hand_importance.csv')
+metrics.to_csv('feature_hand_metric.csv')
+
+print 'feature importance:'
+print fi
+print 'final metrics:'
+print metrics

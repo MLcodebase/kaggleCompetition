@@ -275,7 +275,9 @@ def model(features, test_features, encoding = 'ohe', n_folds = 5):
         
         valid_scores.append(valid_score)
         train_scores.append(train_score)
-        
+        print 'valid_indices: ',valid_indices
+        print 'valid_score: ', valid_score
+        print 'train_score: ', train_score
         # Clean up memory
         gc.enable()
         del model, train_features, valid_features
