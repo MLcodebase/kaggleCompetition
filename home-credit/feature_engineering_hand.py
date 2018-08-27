@@ -106,8 +106,8 @@ test = test.merge(previous_loan_count, on ='SK_ID_CURR', how = 'left')
 previous_counts = agg_categorical(previous, 'SK_ID_CURR', 'previous')
 previous_agg = agg_numeric(previous, 'SK_ID_CURR', 'previous')
 
-print('Previous aggregation shape: ', previous_agg.shape)
-print('Previous aggregation shape: ', previous_counts.shape)
+print('Previous aggregation numeric shape: ', previous_agg.shape)
+print('Previous aggregation count shape: ', previous_counts.shape)
 
 train = train.merge(previous_counts, on ='SK_ID_CURR', how = 'left')
 train = train.merge(previous_agg, on = 'SK_ID_CURR', how = 'left')
