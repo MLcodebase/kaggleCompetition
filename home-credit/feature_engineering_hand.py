@@ -175,7 +175,7 @@ install_ver_chg['chg_cnt'] = install_ver_chg['NUM_INSTALMENT_VERSION'] - 1
 install_ver_chg = install_ver_chg.drop(columns=['SK_ID_PREV','NUM_INSTALMENT_VERSION'],axis=1)
 install_ver_chg_agg = agg_numeric(install_ver_chg,'SK_ID_CURR','install_chg')
 train = train.merge(install_ver_chg_agg, on = 'SK_ID_CURR', how = 'left')
-test = test.merge(install_ver_chg, on = 'SK_ID_CURR', how = 'left')
+test = test.merge(install_ver_chg_agg, on = 'SK_ID_CURR', how = 'left')
 print('Training Shape after merge installment version change info: ', train.shape)
 print('Testing Shape after merge installment version change info: ', test.shape)
 
