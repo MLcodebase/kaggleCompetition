@@ -169,11 +169,16 @@ installments = convert_types(installments, print_info = True)
 installments['payment_rate'] = installments['AMT_PAYMENT'] / installments['AMT_INSTALMENT']
 install_ver_chg = installments[['SK_ID_CURR','SK_ID_PREV','NUM_INSTALMENT_VERSION']]
 install_ver_chg = install_ver_chg.groupby(['SK_ID_CURR','SK_ID_PREV']).nunique()
-install_ver_chg = install_ver_chg.drop(columns= ['SK_ID_CURR','SK_ID_PREV'],axis=1).reset_index()
+install_ver_chg = install_ver_chg.drop(columns= ['SK_ID_CURR','SK_ID_PREV'],axis=1)
+install_ver_chg = install_ver_chg.reset_index()
 install_ver_chg['chg_cnt'] = install_ver_chg['NUM_INSTALMENT_VERSION'] - 1
 install_ver_chg = install_ver_chg.drop(columns=['SK_ID_PREV','NUM_INSTALMENT_VERSION'],axis=1)
-train = train.merge(install_ver_chg, on = 'SK_ID_CURR', how = 'left')
+install_ver_chg_agg = agg_numeric(install_ver_chg,'SK_ID_CURR','install_chg')
+train = train.merge(install_ver_chg_agg, on = 'SK_ID_CURR', how = 'left')
 test = test.merge(install_ver_chg, on = 'SK_ID_CURR', how = 'left')
+print('Training Shape after merge installment version change info: ', train.shape)
+print('Testing Shape after merge installment version change info: ', test.shape)
+
 installments['pay_day_dif'] = installments['DAYS_ENTRY_PAYMENT'] - installments['DAYS_INSTALMENT']
 
 def f(x):
