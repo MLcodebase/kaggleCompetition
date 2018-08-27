@@ -238,6 +238,7 @@ def model(features, test_features, encoding = 'ohe', n_folds = 5):
     train_scores = []
     
     # Iterate through each fold
+    cv_count = 0
     for train_indices, valid_indices in k_fold.split(features):
         
         # Training data for the fold
@@ -275,7 +276,8 @@ def model(features, test_features, encoding = 'ohe', n_folds = 5):
         
         valid_scores.append(valid_score)
         train_scores.append(train_score)
-        print 'valid_indices: ',valid_indices
+        cv_count += 1
+        print 'cv_count: ',cv_count
         print 'valid_score: ', valid_score
         print 'train_score: ', train_score
         # Clean up memory
