@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import gc
+from sklearn.ensemble import RandomForestClassifier
+
 # integrate into one function
 
 def target_corrs(df):
@@ -136,7 +138,7 @@ from sklearn.preprocessing import LabelEncoder
 
 import gc
 
-def model(features, test_features, encoding = 'ohe', n_folds = 5):
+def model(features, test_features, encoding = 'ohe', n_folds = 5, drop_columns = None, model_type = 'lgbm'):
     
     """Train and test a light gradient boosting model using
     cross validation. 
@@ -184,7 +186,9 @@ def model(features, test_features, encoding = 'ohe', n_folds = 5):
         
         # Align the dataframes by the columns
         features, test_features = features.align(test_features, join = 'inner', axis = 1)
-        
+        if drop_columns != None:
+            features = features.drop(columns = drop_columns,axis = 1)
+            test_features = test_features.drop(columns = drop_columns,axis = 1)
         # No categorical indices to record
         cat_indices = 'auto'
     
@@ -245,45 +249,78 @@ def model(features, test_features, encoding = 'ohe', n_folds = 5):
         train_features, train_labels = features[train_indices], labels[train_indices]
         # Validation data for the fold
         valid_features, valid_labels = features[valid_indices], labels[valid_indices]
-        
-        # Create the model
-        model = lgb.LGBMClassifier(n_estimators=10000, objective = 'binary', 
-                                   class_weight = 'balanced', learning_rate = 0.05, 
-                                   reg_alpha = 0.1, reg_lambda = 0.1, 
-                                   subsample = 0.8, n_jobs = -1, random_state = 50)
-        
-        # Train the model
-        model.fit(train_features, train_labels, eval_metric = 'auc',
-                  eval_set = [(valid_features, valid_labels), (train_features, train_labels)],
-                  eval_names = ['valid', 'train'], categorical_feature = cat_indices,
-                  early_stopping_rounds = 100, verbose = 200)
-        
-        # Record the best iteration
-        best_iteration = model.best_iteration_
-        
-        # Record the feature importances
-        feature_importance_values += model.feature_importances_ / k_fold.n_splits
-        
-        # Make predictions
-        test_predictions += model.predict_proba(test_features, num_iteration = best_iteration)[:, 1] / k_fold.n_splits
-        
-        # Record the out of fold predictions
-        out_of_fold[valid_indices] = model.predict_proba(valid_features, num_iteration = best_iteration)[:, 1]
-        
-        # Record the best score
-        valid_score = model.best_score_['valid']['auc']
-        train_score = model.best_score_['train']['auc']
-        
-        valid_scores.append(valid_score)
-        train_scores.append(train_score)
-        cv_count += 1
-        print 'cv_count: ',cv_count
-        print 'valid_score: ', valid_score
-        print 'train_score: ', train_score
-        # Clean up memory
-        gc.enable()
-        del model, train_features, valid_features
-        gc.collect()
+
+        if model_type == 'lgbm':
+            # Create the model
+            model = lgb.LGBMClassifier(n_estimators=10000, objective = 'binary', 
+                                    class_weight = 'balanced', learning_rate = 0.05, 
+                                    reg_alpha = 0.1, reg_lambda = 0.1, 
+                                    subsample = 0.8, n_jobs = -1, random_state = 50)
+            
+            # Train the model
+            model.fit(train_features, train_labels, eval_metric = 'auc',
+                    eval_set = [(valid_features, valid_labels), (train_features, train_labels)],
+                    eval_names = ['valid', 'train'], categorical_feature = cat_indices,
+                    early_stopping_rounds = 100, verbose = 200)
+            
+            # Record the best iteration
+            best_iteration = model.best_iteration_
+            
+            # Record the feature importances
+            feature_importance_values += model.feature_importances_ / k_fold.n_splits
+            
+            # Make predictions
+            test_predictions += model.predict_proba(test_features)[:, 1] / k_fold.n_splits
+
+            # Record the out of fold predictions
+            out_of_fold[valid_indices] = model.predict_proba(valid_features, num_iteration = best_iteration)[:, 1]
+            
+            # Record the best score
+            valid_score = model.best_score_['valid']['auc']
+            train_score = model.best_score_['train']['auc']
+            
+            valid_scores.append(valid_score)
+            train_scores.append(train_score)
+            cv_count += 1
+            print 'cv_count: ',cv_count
+            print 'valid_score: ', valid_score
+            print 'train_score: ', train_score
+            # Clean up memory
+            gc.enable()
+            del model, train_features, valid_features
+            gc.collect()
+
+        elif model_type == 'rf':
+            model = RandomForestClassifier(n_estimators=200,n_jobs=-1)
+
+            model.fit(train_features, train_labels)
+
+            # Record the feature importances
+            feature_importance_values += model.feature_importances_ / k_fold.n_splits
+            
+            # Make predictions
+            one_test_predictions  = model.predict_proba(test_features)[:, 1] 
+            test_predictions += one_test_predictions / k_fold.n_splits
+            
+            # Record the out of fold predictions
+            out_of_fold[valid_indices] = model.predict_proba(valid_features)[:, 1]
+
+            train_predictions = model.predict_proba(train_features)[:, 1]
+            # Record the best score
+            valid_score = roc_auc_score(valid_labels,out_of_fold[valid_indices])
+            train_score = roc_auc_score(train_labels,train_predictions)
+            
+            valid_scores.append(valid_score)
+            train_scores.append(train_score)
+            cv_count += 1
+            print 'cv_count: ',cv_count
+            print 'valid_score: ', valid_score
+            print 'train_score: ', train_score
+            # Clean up memory
+            gc.enable()
+            del model, train_features, valid_features
+            gc.collect()
+     
         
     # Make the submission dataframe
     submission = pd.DataFrame({'SK_ID_CURR': test_ids, 'TARGET': test_predictions})
