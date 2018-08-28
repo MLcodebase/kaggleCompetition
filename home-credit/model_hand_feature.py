@@ -11,7 +11,7 @@ from helpers import *
 import argparse
 
 parser = argparse.ArgumentParser(description='Train face network')
-parser.add_argument('--model-type',  default='lgbm',type=str,help='model type')
+parser.add_argument('--model-type',  default='rf',type=str,help='model type')
 parser.add_argument('--feature-rate',default=0.9 ,type=float,help='percent of feature uesed to train')
 
 args = parser.parse_args()

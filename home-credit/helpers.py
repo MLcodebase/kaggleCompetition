@@ -8,6 +8,38 @@ from sklearn.ensemble import RandomForestClassifier
 
 # integrate into one function
 
+def remove_missing_columns(train, test, threshold = 90):
+    # Calculate missing stats for train and test (remember to calculate a percent!)
+    train_miss = pd.DataFrame(train.isnull().sum())
+    train_miss['percent'] = 100 * train_miss[0] / len(train)
+    
+    test_miss = pd.DataFrame(test.isnull().sum())
+    test_miss['percent'] = 100 * test_miss[0] / len(test)
+    
+    # list of missing columns for train and test
+    missing_train_columns = list(train_miss.index[train_miss['percent'] > threshold])
+    missing_test_columns = list(test_miss.index[test_miss['percent'] > threshold])
+    
+    # Combine the two lists together
+    missing_columns = list(set(missing_train_columns + missing_test_columns))
+    
+    # Print information
+    print('There are %d columns with greater than %d%% missing values.' % (len(missing_columns), threshold))
+    
+    # Drop the missing columns and return
+    train = train.drop(columns = missing_columns)
+    test = test.drop(columns = missing_columns)
+    
+    return train, test
+
+def fill_nan_columns(df,method='median'):
+    df_miss = pd.DataFrame(df.isnull().sum())
+    df_miss.columns = ['miss_count']
+    null_columns = list(df_miss.ix[df_miss['miss_count']>0])
+    for c in null_columns:
+        if method == 'median':
+            df[c].fillna(df[c].median())
+
 def target_corrs(df):
 
     # List of correlations
@@ -189,6 +221,11 @@ def model(features, test_features, encoding = 'ohe', n_folds = 5, drop_columns =
         if drop_columns != None:
             features = features.drop(columns = drop_columns,axis = 1)
             test_features = test_features.drop(columns = drop_columns,axis = 1)
+        
+        if model_type != 'lgbm':
+            features, test_features = remove_missing_columns(features,test_features,threshold=60)
+            fill_nan_columns(features)
+            fill_nan_columns(test_features)
         # No categorical indices to record
         cat_indices = 'auto'
     
@@ -601,27 +638,3 @@ def aggregate_client(df, group_vars, df_names):
     gc.collect()
 
     return df_by_client
-
-def remove_missing_columns(train, test, threshold = 90):
-    # Calculate missing stats for train and test (remember to calculate a percent!)
-    train_miss = pd.DataFrame(train.isnull().sum())
-    train_miss['percent'] = 100 * train_miss[0] / len(train)
-    
-    test_miss = pd.DataFrame(test.isnull().sum())
-    test_miss['percent'] = 100 * test_miss[0] / len(test)
-    
-    # list of missing columns for train and test
-    missing_train_columns = list(train_miss.index[train_miss['percent'] > threshold])
-    missing_test_columns = list(test_miss.index[test_miss['percent'] > threshold])
-    
-    # Combine the two lists together
-    missing_columns = list(set(missing_train_columns + missing_test_columns))
-    
-    # Print information
-    print('There are %d columns with greater than %d%% missing values.' % (len(missing_columns), threshold))
-    
-    # Drop the missing columns and return
-    train = train.drop(columns = missing_columns)
-    test = test.drop(columns = missing_columns)
-    
-    return train, test
