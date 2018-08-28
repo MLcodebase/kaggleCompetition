@@ -38,7 +38,7 @@ def fill_nan_columns(df,method='median'):
     null_columns = list(df_miss.ix[df_miss['miss_count']>0])
     for c in null_columns:
         if method == 'median':
-            df[c].fillna(df[c].median())
+            df[c].fillna(df[c].median(),inplace=True)
 
 def target_corrs(df):
 
