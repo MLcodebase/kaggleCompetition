@@ -35,7 +35,7 @@ def remove_missing_columns(train, test, threshold = 90):
 def fill_nan_columns(df,method='median'):
     df_miss = pd.DataFrame(df.isnull().sum())
     df_miss.columns = ['miss_count']
-    null_columns = list(df_miss.ix[df_miss['miss_count']>0])
+    null_columns = list(df_miss.index[df_miss['miss_count']>0])
     for c in null_columns:
         if method == 'median':
             df[c].fillna(df[c].median(),inplace=True)
