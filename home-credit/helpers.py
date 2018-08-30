@@ -231,6 +231,8 @@ def model(features, test_features, encoding = 'ohe', n_folds = 5, drop_columns =
             features, test_features = remove_missing_columns(features,test_features,threshold=60)
             fill_nan_columns(features)
             fill_nan_columns(test_features)
+            features, test_features = features.align(test_features, join = 'inner', axis = 1)
+
         # No categorical indices to record
         cat_indices = 'auto'
     
