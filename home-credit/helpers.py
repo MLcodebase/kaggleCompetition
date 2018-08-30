@@ -40,6 +40,11 @@ def fill_nan_columns(df,method='median'):
         if method == 'median':
             df[c].fillna(df[c].median(),inplace=True)
 
+    col_sum = df.sum()
+    col_sum_to_drop = list(col_sum.index[col_sum==np.inf])
+    print 'columns sum is infinite: ',col_sum_to_drop
+    df.drop( columns = col_sum_to_drop, inplace=True)
+
 def target_corrs(df):
 
     # List of correlations
@@ -225,11 +230,7 @@ def model(features, test_features, encoding = 'ohe', n_folds = 5, drop_columns =
         if model_type != 'lgbm':
             features, test_features = remove_missing_columns(features,test_features,threshold=60)
             fill_nan_columns(features)
-            print features.isnull().any(axis=1)
-            missing_values_table(features)
             fill_nan_columns(test_features)
-            print test_features.isnull().any(axis=1)
-            missing_values_table(test_features)
         # No categorical indices to record
         cat_indices = 'auto'
     
