@@ -645,3 +645,17 @@ def aggregate_client(df, group_vars, df_names):
     gc.collect()
 
     return df_by_client
+
+def df_zero_columns(df, columns):
+    zero_cols = []
+    for c in columns:
+        zero_counts = (df[c]==0).sum()
+        if zero_counts>0:
+            zero_cols.append(c)
+            print c, float(zero_counts)/len(df)
+    return zero_cols
+
+def df_columns_null(df, columns):
+    for c in columns:
+        counts = (df[c].isnull()).sum()
+        print c, float(counts)/len(df)

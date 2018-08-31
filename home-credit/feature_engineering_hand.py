@@ -34,11 +34,16 @@ bureau_loan_count = bureau['SK_ID_CURR'].value_counts().reset_index(name='SK_ID_
 train = train.merge(bureau_loan_count, on ='SK_ID_CURR', how = 'left')
 test = test.merge(bureau_loan_count, on ='SK_ID_CURR', how = 'left')
 
-drop_columns =['DAYS_CREDIT','DAYS_CREDIT_ENDDATE','DAYS_ENDDATE_FACT']
-bureau = bureau.drop(columns=drop_columns,axis=1)
+#drop_columns =['DAYS_CREDIT','DAYS_CREDIT_ENDDATE','DAYS_ENDDATE_FACT']
+#bureau = bureau.drop(columns=drop_columns,axis=1)
 bureau = bureau.merge(income,how='left',on='SK_ID_CURR')
 bureau['loan_rate'] = bureau['AMT_ANNUITY'] / bureau['AMT_INCOME_TOTAL']
-bureau['bureau_app_term'] = bureau['AMT_CREDIT_SUM'] / bureau['AMT_ANNUITY']
+bureau['debt_pressure'] = bureau['AMT_CREDIT_SUM_DEBT'] / bureau['AMT_INCOME_TOTAL']
+bureau['credit_card_rate'] = bureau['AMT_CREDIT_SUM_LIMIT'] / bureau['AMT_INCOME_TOTAL']
+bureau['debt_rate'] = bureau['AMT_CREDIT_SUM_DEBT'] / bureau['AMT_CREDIT_SUM']
+bureau['app_term_inverse'] =  bureau['AMT_ANNUITY'] / bureau['AMT_CREDIT_SUM']
+
+bureau.replace([np.inf,-np.inf],np.nan,inplace=True)
 
 bureau = bureau.drop(columns=['AMT_INCOME_TOTAL'],axis=1)
 bureau_counts = agg_categorical(bureau, 'SK_ID_CURR', 'bureau')
@@ -91,13 +96,15 @@ previous = convert_types(previous, print_info=True)
 drop_columns = ['FLAG_LAST_APPL_PER_CONTRACT','NFLAG_LAST_APPL_IN_DAY','DAYS_DECISION','NAME_CLIENT_TYPE','DAYS_FIRST_DRAWING','DAYS_TERMINATION']
 previous = previous.drop(columns=drop_columns,axis=1)
 
-previous['previous_app_gap'] = previous['AMT_CREDIT'] / previous['AMT_CREDIT']
-previous['previous_app_term'] = previous['AMT_CREDIT'] / previous['AMT_ANNUITY']
-previous['downpay_pressure'] = previous['AMT_DOWN_PAYMENT'] / previous['AMT_CREDIT']
+previous['app_gap'] = previous['AMT_CREDIT'] - previous['AMT_APPLICATION']
+previous['app_term'] = previous['AMT_CREDIT'] / previous['AMT_ANNUITY']
 previous = previous.merge(income,how='left',on='SK_ID_CURR')
 previous['downpay_pressure'] = previous['AMT_DOWN_PAYMENT'] / previous['AMT_INCOME_TOTAL']
-previous['previous_buy_pressure'] = previous['AMT_GOODS_PRICE'] / previous['AMT_INCOME_TOTAL']
-previous['previous_loan_good_rate'] = previous['AMT_CREDIT'] / previous['AMT_GOODS_PRICE']
+previous['buy_pressure'] = previous['AMT_GOODS_PRICE'] / previous['AMT_INCOME_TOTAL']
+previous['loan_pressure'] = previous['AMT_CREDIT'] / previous['AMT_INCOME_TOTAL']
+previous['loan_good_rate'] = previous['AMT_CREDIT'] / previous['AMT_GOODS_PRICE']
+
+previous.replace([np.inf,-np.inf],np.nan,inplace=True)
 
 previous_loan_count = previous['SK_ID_CURR'].value_counts().reset_index(name='SK_ID_CURR').rename({'index':'SK_ID_CURR','SK_ID_CURR':'previous_loan_count'},axis=1)
 train = train.merge(previous_loan_count, on ='SK_ID_CURR', how = 'left')
@@ -152,6 +159,8 @@ credit['card_draw_pay_rate'] = credit['AMT_DRAWINGS_CURRENT'] / credit['AMT_PAYM
 credit['card_int_pay_rate'] = credit['AMT_INST_MIN_REGULARITY'] / credit['AMT_PAYMENT_TOTAL_CURRENT']
 credit['card_inst_pay_rate'] = credit['AMT_INST_MIN_REGULARITY'] / credit['AMT_PAYMENT_CURRENT']
 
+credit.replace([np.inf,-np.inf],np.nan,inplace=True)
+
 credit_by_client = aggregate_client(credit, group_vars = ['SK_ID_PREV', 'SK_ID_CURR'], df_names = ['credit', 'client'])
 print('Credit by client shape: ', credit_by_client.shape)
 train = train.merge(credit_by_client, on = 'SK_ID_CURR', how = 'left')
@@ -194,6 +203,8 @@ installments['payment_rate'] = installments['AMT_PAYMENT'] / installments['AMT_I
 
 drop_columns = ['DAYS_INSTALMENT','DAYS_ENTRY_PAYMENT']
 installments = installments.drop(columns=drop_columns,axis=1)
+
+installments.replace([np.inf,-np.inf],np.nan,inplace=True)
 
 installments_by_client = aggregate_client(installments, group_vars = ['SK_ID_PREV', 'SK_ID_CURR'], df_names = ['installments', 'client'])
 print('installments by client shape: ', installments_by_client.shape)
