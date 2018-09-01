@@ -25,7 +25,6 @@ test = pd.read_csv('data/test-hand-feature.csv')
 
 submission, fi, metrics = model(train, test, drop_columns=columns_drop, model_type = args.model_type)   
 
-
 submission.to_csv('data/feature_hand_rf2.csv',index=False)
 fi.to_csv('data/feature_hand_importance2.csv')
 metrics.to_csv('data/feature_hand_metric2.csv')
