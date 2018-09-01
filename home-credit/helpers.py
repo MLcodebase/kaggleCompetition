@@ -335,7 +335,7 @@ def model(features, test_features, encoding = 'ohe', n_folds = 5, drop_columns =
             gc.collect()
 
         elif model_type == 'rf':
-            model = RandomForestClassifier(n_estimators=80,n_jobs=-1,oob_score=True,min_samples_split=3,min_samples_leaf=2)
+            model = RandomForestClassifier(n_estimators=50,max_depth=10,n_jobs=-1,oob_score=True,min_samples_split=3,min_samples_leaf=2)
 
             model.fit(train_features, train_labels)
 
