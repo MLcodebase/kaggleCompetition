@@ -47,22 +47,23 @@ train, test = train.align(test, join = 'inner', axis = 1)
 feature_names = list(train.columns)
 
 from sklearn.cross_validation import train_test_split
-from sklearn.grid_search import GridSearchCV
-from sklearn import cross_validation
-
-train_x, test_x, train_y, test_y = train_test_split(train,labels,test_size=0.2,random_state=5)
-
-param = {'random_state':[1,2,3,4,5],
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import cross_val_score
+#train_x, test_x, train_y, test_y = train_test_split(train,labels,test_size=0.2,random_state=5)
+param = {'random_state':[1,2],
          'n_estimators':[50],
 #         'min_samples_leaf':[1,2,3],
 #         'min_samples_split':[2,3,4],
-         'max_depth':[8,16,32],
+         'max_depth':[10,11,12],
          'oob_score':[True]}
 rf = RandomForestClassifier()
-clf = GridSearchCV(rf, param,cv=5, n_jobs=-1, verbose=1, scoring="roc_auc")
-clf.fit(train_x, train_y)
+clf = GridSearchCV(rf, param,cv=4, n_jobs=5, verbose=1, scoring="roc_auc",return_train_score=True)
+clf.fit(train, labels)
 clf.best_params_
+clf.best_score_
+clf.cv_results_['mean_train_score']
+clf.cv_results_['mean_test_score']
 
-#rf = RandomForestClassifier(random_state=9,n_estimators=25,max_depth=8,oob_score=True)
-#rf_scores = cross_validation.cross_val_score(rf, train, labels, cv=5)
+rf = RandomForestClassifier(random_state=9,n_estimators=50,max_depth=10,oob_score=True)
+rf_scores = cross_val_score(rf, train, labels, scoring="roc_auc", cv=5,n_jobs=-1)
 #rf_scores
